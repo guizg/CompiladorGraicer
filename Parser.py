@@ -42,4 +42,5 @@ class Parser:
 
     def run(code):
         Parser.tokens = Tokenizer(code)
+        print(Parser.parseExpression())
 
