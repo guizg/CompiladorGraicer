@@ -14,6 +14,10 @@ class Tokenizer:
 
         while self.origin[self.position] == ' ':
             self.position += 1
+            if self.position == len(self.origin):
+                self.actual = Token('EOF', '')
+                # print(self.actual)
+                return self.actual
 
 
         pseudotoken = self.origin[self.position]
@@ -31,13 +35,13 @@ class Tokenizer:
             return self.actual
 
         if pseudotoken == '*':
-            self.actual = Token('MULTIPLIED BY', '*')
+            self.actual = Token('MULT', '*')
             self.position += 1
             # print(self.actual)
             return self.actual
         
         if pseudotoken == '/':
-            self.actual = Token('DIVIDED BY', '/')
+            self.actual = Token('DIV', '/')
             self.position += 1
             # print(self.actual)
             return self.actual

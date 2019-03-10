@@ -1,46 +1,55 @@
 from Tokenizer import Tokenizer
 from Token import Token
+from PrePro import PrePro
 
 class Parser:
     def parseExpression():
+        result = Parser.parseTerm()
+
+        while(Parser.tokens.actual.type == 'PLUS' or Parser.tokens.actual.type == 'MINUS'):
+            if(Parser.tokens.actual.type == 'PLUS'):
+                actual = Parser.tokens.selectNext()
+                result += Parser.parseTerm()
+            elif(Parser.tokens.actual.type == 'MINUS'):
+                actual = Parser.tokens.selectNext()
+                result -= Parser.parseTerm()
+        
+        return result
+
+
+    def parseTerm():
         result = 0
-        actual = Parser.tokens.selectNext()
+        actual = Parser.tokens.actual
 
         if actual.type == 'INT':
             result += actual.value
             actual = Parser.tokens.selectNext()
-            while(actual.type == 'PLUS' or actual.type == 'MINUS' or actual.type == 'MULTIPLIED BY' or actual.type == 'DIVIDED BY'):
-                if(actual.type == 'PLUS'):
-                    actual = Parser.tokens.selectNext()
-                    if actual.type == 'INT':
-                        result += actual.value
-                    else:
-                        raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position)) 
-                elif(actual.type == 'MINUS'):
-                    actual = Parser.tokens.selectNext()
-                    if actual.type == 'INT':
-                        result -= actual.value
-                    else:
-                        raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position))
-                elif(actual.type == 'MULTIPLIED BY'):
+            while(actual.type == 'DIV' or actual.type == 'MULT'):
+                if(actual.type == 'MULT'):
                     actual = Parser.tokens.selectNext()
                     if actual.type == 'INT':
                         result *= actual.value
                     else:
                         raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position))
-                elif(actual.type == 'DIVIDED BY'):
+                elif(actual.type == 'DIV'):
                     actual = Parser.tokens.selectNext()
                     if actual.type == 'INT':
-                        result /= actual.value
+                        result //= actual.value
                     else:
                         raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position))
                 actual = Parser.tokens.selectNext()
         else:
-            raise Exception("Can't start with a symbol. Column: "+str(Parser.tokens.position))
+            raise Exception("Can't start with a symbol (or parse empty string). Column: "+str(Parser.tokens.position))
         
         return result
 
-    def run(code):
-        Parser.tokens = Tokenizer(code)
-        print(Parser.parseExpression())
 
+    def run(code):
+        print(PrePro.filter(code))
+        Parser.tokens = Tokenizer(PrePro.filter(code))
+        Parser.tokens.selectNext()
+        res = Parser.parseExpression()
+        if Parser.tokens.actual.type == "EOF":
+            return res
+        else:
+            raise Exception("Can't put number after number. Column: "+str(Parser.tokens.position))
