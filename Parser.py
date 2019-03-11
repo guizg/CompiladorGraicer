@@ -59,33 +59,6 @@ class Parser:
             raise Exception("Unexpected token. Column: "+str(Parser.tokens.position))    
 
 
-    # def parseTerm():
-    #     result = 0
-    #     actual = Parser.tokens.actual
-
-    #     if actual.type == 'INT':
-    #         result += actual.value
-    #         actual = Parser.tokens.selectNext()
-    #         while(actual.type == 'DIV' or actual.type == 'MULT'):
-    #             if(actual.type == 'MULT'):
-    #                 actual = Parser.tokens.selectNext()
-    #                 if actual.type == 'INT':
-    #                     result *= actual.value
-    #                 else:
-    #                     raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position))
-    #             elif(actual.type == 'DIV'):
-    #                 actual = Parser.tokens.selectNext()
-    #                 if actual.type == 'INT':
-    #                     result //= actual.value
-    #                 else:
-    #                     raise Exception("Can't use a symbol after a symbol (or end with symbol). Column: "+str(Parser.tokens.position))
-    #             actual = Parser.tokens.selectNext()
-    #     else:
-    #         raise Exception("Can't start with a symbol (or parse empty string). Column: "+str(Parser.tokens.position))
-        
-    #     return result
-
-
     def run(code):
         Parser.tokens = Tokenizer(PrePro.filter(code))
         Parser.tokens.selectNext()
