@@ -45,6 +45,18 @@ class Tokenizer:
             self.position += 1
             # print(self.actual)
             return self.actual
+
+        if pseudotoken == '(':
+            self.actual = Token('OPEN_PAR', '(')
+            self.position += 1
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken == ')':
+            self.actual = Token('CLOSE_PAR', ')')
+            self.position += 1
+            # print(self.actual)
+            return self.actual
         
         self.position += 1
         while(self.position<len(self.origin) and self.origin[self.position].isdigit()):
