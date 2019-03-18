@@ -1,6 +1,7 @@
 from Tokenizer import Tokenizer
 from Token import Token
 from PrePro import PrePro
+from Node import *
 
 class Parser:
     def parseExpression():
@@ -9,10 +10,12 @@ class Parser:
         while(Parser.tokens.actual.type == 'PLUS' or Parser.tokens.actual.type == 'MINUS'):
             if(Parser.tokens.actual.type == 'PLUS'):
                 actual = Parser.tokens.selectNext()
-                result += Parser.parseTerm()
+                child1 = Parser.parseTerm()
+                result = BinOp("+", [result, child1])
             elif(Parser.tokens.actual.type == 'MINUS'):
                 actual = Parser.tokens.selectNext()
-                result -= Parser.parseTerm()
+                child1 = Parser.parseTerm()
+                result = BinOp("-", [result, child1])
         
         return result
 
@@ -22,11 +25,14 @@ class Parser:
         while(Parser.tokens.actual.type == 'DIV' or Parser.tokens.actual.type == 'MULT'):
             if(Parser.tokens.actual.type == 'MULT'):
                 actual = Parser.tokens.selectNext()
-                result *= Parser.parseTerm()
+                child1 = Parser.parseFactor()
+                result = BinOp("*", [result, child1])
+                
             elif(Parser.tokens.actual.type == 'DIV'):
                 actual = Parser.tokens.selectNext()
-                result //= Parser.parseTerm()
-        
+                child1 = Parser.parseFactor()
+                result = BinOp("/", [result, child1])
+
         return result
 
     def parseFactor():
@@ -34,17 +40,19 @@ class Parser:
         result = 0
 
         if actual.type == 'INT':
-            result = actual.value
+            result = IntVal(actual.value, [])
             actual = Parser.tokens.selectNext()
             return result
 
         elif actual.type == 'PLUS':
             actual = Parser.tokens.selectNext()
-            return +Parser.parseFactor()
+            child = Parser.parseFactor()
+            return UnOp("+", [child])
 
         elif actual.type == 'MINUS':
             actual = Parser.tokens.selectNext()
-            return -Parser.parseFactor()
+            child = Parser.parseFactor()
+            return UnOp("-", [child])
 
         elif actual.type == 'OPEN_PAR':
             actual = Parser.tokens.selectNext()

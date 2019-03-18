@@ -1,4 +1,6 @@
 from Parser import Parser
 
 code = input()
-print(Parser.run(code))
+tree = Parser.run(code)
+print(tree.Evaluate())
+
