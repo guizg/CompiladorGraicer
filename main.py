@@ -1,13 +1,11 @@
 from Parser import Parser
 from SymbolTable import SymbolTable
+from PrePro import PrePro
 
-# code = input()
 
 with open("input.vbs", "r") as f: ## Guilherme, para debug use o input da pasta logicomp!!!!       
     code = f.read()
-    # print(code)
+    # print(PrePro.filter(code))
     tree = Parser.run(code)
     ST = SymbolTable()
     tree.Evaluate(ST)
-
-

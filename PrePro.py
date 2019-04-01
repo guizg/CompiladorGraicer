@@ -1,12 +1,18 @@
 
-
-
 class PrePro:
     def filter(code):
         new = ""
+        comment = False
         for c in code:
+            if c == "\n":
+                comment = False
+            
+            if comment == True:
+                continue
+                
             if c == "'":
-                break
+                comment = True
+                continue
             new += c
 
         return new

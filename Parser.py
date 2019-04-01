@@ -4,7 +4,6 @@ from PrePro import PrePro
 from Node import *
 
 class Parser:
-
     def parseStatements():
         Parser.line = 0
 
