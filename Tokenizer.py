@@ -5,8 +5,10 @@ class Tokenizer:
         self.origin = origin
         self.position = 0
         self.actual = None
+        self.reserved = ["PRINT", "BEGIN", "END"]
 
     def selectNext(self):
+
         if self.position == len(self.origin):
             self.actual = Token('EOF', '')
             # print(self.actual)
@@ -57,15 +59,49 @@ class Tokenizer:
             self.position += 1
             # print(self.actual)
             return self.actual
-        
-        self.position += 1
-        while(self.position<len(self.origin) and self.origin[self.position].isdigit()):
-            pseudotoken += self.origin[self.position]
+
+        if pseudotoken == '=':
+            self.actual = Token('ASSIGN', '=')
             self.position += 1
-        
-        self.actual = Token('INT', int(pseudotoken))
-        # print(self.actual)
-        return self.actual
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken == '\n':
+            self.actual = Token('BREAK', 'BREAK')
+            self.position +=1
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken.isdigit():
+            self.position += 1
+            while(self.position<len(self.origin) and self.origin[self.position].isdigit()):
+                pseudotoken += self.origin[self.position]
+                self.position += 1
+            
+            self.actual = Token('INT', int(pseudotoken))
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken.isalpha():
+            self.position += 1
+
+            while(self.position<len(self.origin) and (self.origin[self.position].isalpha() or self.origin[self.position] == "_" or self.origin[self.position].isdigit())):
+                pseudotoken += self.origin[self.position]
+                self.position += 1
+            
+            pseudotoken = pseudotoken.upper()
+
+            if pseudotoken in self.reserved:
+                self.actual = Token(pseudotoken, pseudotoken)
+            else:
+                self.actual = Token('ID', pseudotoken)
+            #print(self.actual)
+            return self.actual
+
+
+        raise Exception("Token '{0}' not known.",format(pseudotoken))
+
+
         
 
 # toks = Tokenizer("11+12   -   4+    100")

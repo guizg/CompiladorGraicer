@@ -1,5 +1,5 @@
 class Node:
-    def Evaluate(self):
+    def Evaluate(self,  table):
         pass
     
 class BinOp(Node):
@@ -7,15 +7,15 @@ class BinOp(Node):
         self.value = value
         self.children = children
 
-    def Evaluate(self):
+    def Evaluate(self,  table):
         if self.value == '+':
-            return self.children[0].Evaluate() + self.children[1].Evaluate()
+            return self.children[0].Evaluate(table) + self.children[1].Evaluate(table)
         if self.value == '-':
-            return self.children[0].Evaluate() - self.children[1].Evaluate()
+            return self.children[0].Evaluate(table) - self.children[1].Evaluate(table)
         if self.value == '*':
-            return self.children[0].Evaluate() * self.children[1].Evaluate()
+            return self.children[0].Evaluate(table) * self.children[1].Evaluate(table)
         if self.value == '/':
-            return self.children[0].Evaluate() // self.children[1].Evaluate()
+            return self.children[0].Evaluate(table) // self.children[1].Evaluate(table)
 
 
         
@@ -24,21 +24,55 @@ class UnOp(Node):
         self.value = value
         self.children = children
 
-    def Evaluate(self):
+    def Evaluate(self,  table):
         if self.value == '+':
-            return +self.children[0].Evaluate()
+            return +self.children[0].Evaluate(table)
         if self.value == '-':
-            return -self.children[0].Evaluate()
+            return -self.children[0].Evaluate(table)
 
 class IntVal(Node):
     def __init__(self, value, children):
         self.value = value
         self.children = children
 
-    def Evaluate(self):
+    def Evaluate(self,  table):
         return self.value
+
+class Statements(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        for c in self.children:
+            c.Evaluate(table)
+
+class Id(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        return table.getSymbol(self.value)
+    
+class Assignment(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        table.setSymbol(self.children[0].value, self.children[1].Evaluate(table))
+
+class Print(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        print(self.children[0].Evaluate(table))
 
 class NoOp(Node):
     def __init__(self, value, children):
         self.value = value
         self.children = children
+
