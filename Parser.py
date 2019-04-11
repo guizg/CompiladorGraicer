@@ -5,36 +5,18 @@ from Node import *
 
 class Parser:
     def parseStatements():
-        Parser.line = 0
-
-        if Parser.tokens.actual.type != 'BEGIN':
-            raise Exception("Expecting a BEGIN.")
-        Parser.tokens.selectNext()
-
-        if Parser.tokens.actual.type != 'BREAK':
-            raise Exception("You didnt quebrate the line. Line: {0}".format(str(Parser.line)))
-        Parser.tokens.selectNext()
-
-        Parser.line +=1
+        
         
         children = []
-        while Parser.tokens.actual.type != 'END':
+
+        while Parser.tokens.actual.type != 'EOF' and Parser.tokens.actual.type != 'WEND' and Parser.tokens.actual.type != 'END' and Parser.tokens.actual.type != 'ELSE':
             children.append(Parser.parseStatement())
-            if Parser.tokens.actual.type != 'BREAK':
-                print(Parser.tokens.actual.type)
-                raise Exception("You didnt quebrate the line. Line: {0}".format(str(Parser.line)))
             Parser.line +=1
             Parser.tokens.selectNext()
-        Parser.tokens.selectNext()
 
-        # if Parser.tokens.actual.type != 'BREAK':
-        #     raise Exception("You didnt quebrate the line. Line: {0}".format(str(Parser.line)))
-        # Parser.tokens.selectNext()
-        
         return Statements("statements", children)
 
     def parseStatement():
-        res = NoOp('', [])
 
         if Parser.tokens.actual.type == 'ID':
            child0 = Id(Parser.tokens.actual.value, [])
@@ -42,20 +24,100 @@ class Parser:
            if Parser.tokens.actual.value != '=':
                raise Exception("Excpected a '=' here. Line: {0}".format(str(Parser.line)))
            Parser.tokens.selectNext()
-           res = Assignment("=", [child0, Parser.parseExpression()])
+           return Assignment("=", [child0, Parser.parseExpression()])
         
-        elif Parser.tokens.actual.type == 'PRINT':
+        if Parser.tokens.actual.type == 'PRINT':
             Parser.tokens.selectNext()
-            res = Print("print", [Parser.parseExpression()])
+            return Print("print", [Parser.parseExpression()])
 
-        elif Parser.tokens.actual.type == 'BEGIN':
-            res = Parser.parseStatements()
+        if Parser.tokens.actual.type == 'WHILE':
+            Parser.tokens.selectNext()
+            child0 = Parser.parseRelExpression()
+
+            if Parser.tokens.actual.type != 'THEN':
+                raise Exception("Cade o THEN amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            if Parser.tokens.actual.type != 'BREAK':
+                raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+            Parser.line += 1
+            Parser.tokens.selectNext()
+
+            res = WhileNode("while", [child0, Parser.parseStatements()])
+            if Parser.tokens.actual.type != 'WEND':
+                raise Exception("Cade o WEND amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            # if Parser.tokens.actual.type != 'BREAK':
+            #     raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+            # Parser.line += 1
+            # Parser.tokens.selectNext()
+
+            return res
+
+        if Parser.tokens.actual.type == 'IF':
+            Parser.tokens.selectNext()
+            children = [Parser.parseRelExpression()]
+            
+            if Parser.tokens.actual.type != 'THEN':
+                raise Exception("Cade o THEN amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            if Parser.tokens.actual.type != 'BREAK':
+                raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+            Parser.line += 1
+            Parser.tokens.selectNext()
+
+            children.append(Parser.parseStatements())
+
+            if Parser.tokens.actual.type == "ELSE":
+                Parser.tokens.selectNext()
+
+                if Parser.tokens.actual.type != 'BREAK':
+                    raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+                Parser.line += 1
+                Parser.tokens.selectNext()
+
+                children.append(Parser.parseStatements())
+            
+            if Parser.tokens.actual.type != 'END':
+                raise Exception("Cade o END amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            if Parser.tokens.actual.type != 'IF':
+                raise Exception("Cade o IF amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            # if Parser.tokens.actual.type != 'BREAK':
+            #     raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+            # Parser.line += 1
+            # Parser.tokens.selectNext()
+
+            return IfNode("if", children)
+
         
-        return res
+        
+        return NoOp('', [])
         
             
+    def parseRelExpression():
+        child0 = Parser.parseExpression()
 
+        if Parser.tokens.actual.type == 'EQUAL':
+            Parser.tokens.selectNext()
+            return BinOp("=", [child0, Parser.parseExpression()])
+        
+        if Parser.tokens.actual.type == 'BIGGER':
+            Parser.tokens.selectNext()
+            return BinOp(">", [child0, Parser.parseExpression()])
+        
+        if Parser.tokens.actual.type == 'SMALLER':
+            Parser.tokens.selectNext()
+            return BinOp("<", [child0, Parser.parseExpression()])
+        
+        raise Exception("Unexpected token (not =, > or <)")
 
+        
 
     def parseExpression():
         result = Parser.parseTerm()
@@ -102,17 +164,23 @@ class Parser:
             actual = Parser.tokens.selectNext()
             return result
 
-        elif actual.type == 'PLUS':
+        if actual.type == 'PLUS':
             actual = Parser.tokens.selectNext()
             child = Parser.parseFactor()
             return UnOp("+", [child])
 
-        elif actual.type == 'MINUS':
+        if actual.type == 'MINUS':
             actual = Parser.tokens.selectNext()
             child = Parser.parseFactor()
             return UnOp("-", [child])
+        
+        if actual.type == 'INPUT':
+            res = Input(actual.value, [])
+            actual = Parser.tokens.selectNext()
+            return res
+            
 
-        elif actual.type == 'OPEN_PAR':
+        if actual.type == 'OPEN_PAR':
             actual = Parser.tokens.selectNext()
             result = Parser.parseExpression()
             if Parser.tokens.actual.type == 'CLOSE_PAR':
@@ -121,8 +189,8 @@ class Parser:
             else:
                 raise Exception("You did not fechate the parentesis! Line: {0}".format(str(Parser.line)))   
 
-        else:
-            raise Exception("Unexpected token. Line: {0}".format(str(Parser.line)))    
+        
+        raise Exception("Unexpected token '{0}'. Line: {1}".format(Parser.tokens.actual, str(Parser.line)))    
 
 
     def run(code):
@@ -130,6 +198,8 @@ class Parser:
         Parser.line = 0
         Parser.tokens.selectNext()
         res = Parser.parseStatements()
+
+            
         if Parser.tokens.actual.type == "EOF":
             return res
         else:

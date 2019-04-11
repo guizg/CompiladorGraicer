@@ -5,7 +5,7 @@ class Tokenizer:
         self.origin = origin
         self.position = 0
         self.actual = None
-        self.reserved = ["PRINT", "BEGIN", "END"]
+        self.reserved = ["PRINT", "BEGIN", "END", "IF", "WHILE", "ELSE", "INPUT", "WEND", "THEN"]
 
     def selectNext(self):
 
@@ -61,7 +61,19 @@ class Tokenizer:
             return self.actual
 
         if pseudotoken == '=':
-            self.actual = Token('ASSIGN', '=')
+            self.actual = Token('EQUAL', '=')
+            self.position += 1
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken == '>':
+            self.actual = Token('BIGGER', '>')
+            self.position += 1
+            # print(self.actual)
+            return self.actual
+
+        if pseudotoken == '<':
+            self.actual = Token('SMALLER', '<')
             self.position += 1
             # print(self.actual)
             return self.actual
@@ -99,12 +111,4 @@ class Tokenizer:
             return self.actual
 
 
-        raise Exception("Token '{0}' not known.",format(pseudotoken))
-
-
-        
-
-# toks = Tokenizer("11+12   -   4+    100")
-
-# for i in range(9):
-#     toks.selectNext()
+        raise Exception("Token '{0}' not known.".format(pseudotoken))

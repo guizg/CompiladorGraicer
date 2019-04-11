@@ -5,7 +5,7 @@ import sys
 
 
 
-with open(sys.argv[1], "r") as f: ## Guilherme, para debug use o input da pasta logicomp!!!!       
+with open(sys.argv[1], "r") as f:       
     code = f.read()
     # print(PrePro.filter(code))
     tree = Parser.run(code)

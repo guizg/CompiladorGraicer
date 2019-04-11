@@ -4,7 +4,7 @@ class SymbolTable:
     def getSymbol(self, symbol):
         symbol = symbol.upper()
         value = self.table[symbol]
-        if value:
+        if value != None:
             return value
         raise Exception("Symbol '{0}' not declared.".format(symbol))
 

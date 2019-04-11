@@ -16,6 +16,12 @@ class BinOp(Node):
             return self.children[0].Evaluate(table) * self.children[1].Evaluate(table)
         if self.value == '/':
             return self.children[0].Evaluate(table) // self.children[1].Evaluate(table)
+        if self.value == '=':
+            return self.children[0].Evaluate(table) == self.children[1].Evaluate(table)
+        if self.value == '>':
+            return self.children[0].Evaluate(table) > self.children[1].Evaluate(table)
+        if self.value == '<':
+            return self.children[0].Evaluate(table) < self.children[1].Evaluate(table)
 
 
         
@@ -76,3 +82,31 @@ class NoOp(Node):
         self.value = value
         self.children = children
 
+class WhileNode(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        while self.children[0].Evaluate(table):
+            self.children[1].Evaluate(table)
+        
+class IfNode(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        if self.children[0].Evaluate(table):
+            self.children[1].Evaluate(table)
+        else:
+            if len(self.children) == 3:
+                self.children[2].Evaluate(table)
+
+class Input(Node):
+    def __init__(self, value, children):
+        self.value = value
+        self.children = children
+
+    def Evaluate(self, table):
+        return int(input())
