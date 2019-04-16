@@ -5,7 +5,9 @@ class Tokenizer:
         self.origin = origin
         self.position = 0
         self.actual = None
-        self.reserved = ["PRINT", "BEGIN", "END", "IF", "WHILE", "ELSE", "INPUT", "WEND", "THEN"]
+        self.reserved = ["PRINT", "BEGIN", "END", "IF", "WHILE", "ELSE", "INPUT", \
+                        "WEND", "THEN", "DIM", "AS", "INTEGER", "BOOLEAN", "SUB", "MAIN",\
+                        "AND", "OR", "NOT", "TRUE", "FALSE"]
 
     def selectNext(self):
 
