@@ -1,6 +1,7 @@
 class SymbolTable:
     def __init__(self):
         self.table = {}
+        self.where = -4
 
     def getSymbol(self, symbol):
         symbol = symbol.upper()
@@ -24,4 +25,5 @@ class SymbolTable:
 
     def createSymbol(self, symbol, typi):
         symbol = symbol.upper()
-        self.table[symbol] = [None, typi]
+        self.table[symbol] = [None, typi, self.where]
+        self.where -= 4
