@@ -33,6 +33,8 @@ class BinOp(Node):
                 return [x[0] < y[0], "BOOLEAN"]
         
         if x[1] == "BOOLEAN":
+            if self.value == '=':
+                return [x[0] == y[0], "BOOLEAN"]
             if self.value == 'and':
                 return [x[0] and y[0], "BOOLEAN"]
             if self.value == 'or':
