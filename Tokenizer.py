@@ -6,8 +6,8 @@ class Tokenizer:
         self.position = 0
         self.actual = None
         self.reserved = ["PRINT", "BEGIN", "END", "IF", "WHILE", "ELSE", "INPUT", \
-                        "WEND", "THEN", "DIM", "AS", "INTEGER", "BOOLEAN", "SUB", "MAIN",\
-                        "AND", "OR", "NOT", "TRUE", "FALSE"]
+                        "WEND", "THEN", "DIM", "AS", "INTEGER", "BOOLEAN", "SUB", "FUNCTION",\
+                        "AND", "OR", "NOT", "TRUE", "FALSE", "CALL"]
 
     def selectNext(self):
 
@@ -25,6 +25,12 @@ class Tokenizer:
 
 
         pseudotoken = self.origin[self.position]
+
+        if pseudotoken == ',':
+            self.actual = Token('COMMA', ',')
+            self.position += 1
+            # print(self.actual)
+            return self.actual
         
         if pseudotoken == '+':
             self.actual = Token('PLUS', '+')

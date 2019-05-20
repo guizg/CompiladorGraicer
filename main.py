@@ -9,5 +9,5 @@ with open(sys.argv[1], "r") as f:
     code = f.read()
     # print(PrePro.filter(code))
     tree = Parser.run(code)
-    ST = SymbolTable()
+    ST = SymbolTable(None)
     tree.Evaluate(ST)

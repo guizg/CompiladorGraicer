@@ -5,18 +5,56 @@ from Node import *
 
 class Parser:
     def parseProgram():
+        children = []
+        while Parser.tokens.actual.type == 'SUB' or Parser.tokens.actual.type == 'FUNCTION':
+
+            if Parser.tokens.actual.type == 'SUB':
+                children.append(Parser.parseSubDec())
+            else:
+                children.append(Parser.parseFuncDec())
+
+            while Parser.tokens.actual.type == "BREAK":
+                Parser.tokens.selectNext()
+
+        children.append(Call("main", []))
+
+        return Program("program", children)
+
+    def parseSubDec():
         
         if Parser.tokens.actual.type != 'SUB':
             raise Exception("Cade o SUB amigao? Line: {0}".format(str(Parser.line)))
         Parser.tokens.selectNext()
 
-        if Parser.tokens.actual.type != 'MAIN':
-            raise Exception("Cade o MAIN amigao? Line: {0}".format(str(Parser.line)))
+        if Parser.tokens.actual.type != 'ID':
+            raise Exception("Cade o ID amigao? Line: {0}".format(str(Parser.line)))
+        name = Parser.tokens.actual.value
         Parser.tokens.selectNext()
+
+        sub_children = []
 
         if Parser.tokens.actual.type != 'OPEN_PAR':
             raise Exception("Cade o '(' amigao? Line: {0}".format(str(Parser.line)))
         Parser.tokens.selectNext()
+
+        first = True
+        while Parser.tokens.actual.type != 'CLOSE_PAR':
+            if first == False:
+                if Parser.tokens.actual.type != 'COMMA':
+                    raise Exception("Tava esperando uma vírgula aqui. Line: "+str(Parser.line))
+                Parser.tokens.selectNext()
+            if Parser.tokens.actual.type != 'ID':
+                raise Exception("Tava esperando um ID aqui. Line: "+str(Parser.line))
+            id = Id(Parser.tokens.actual.value, [])
+            Parser.tokens.selectNext()
+            
+            if Parser.tokens.actual.type != 'AS':
+                raise Exception("Cade o AS amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            sub_children.append(VarDec("vardec", [id, Parser.parseType()]))
+
+            first = False
 
         if Parser.tokens.actual.type != 'CLOSE_PAR':
             raise Exception("Cade o ')' amigao? Line: {0}".format(str(Parser.line)))
@@ -42,7 +80,84 @@ class Parser:
             raise Exception("Cade o SUB amigao? Line: {0}".format(str(Parser.line)))
         Parser.tokens.selectNext()
         
-        return Program("program", children)
+        stmts = Program("statements", children)
+
+        sub_children.append(stmts)
+
+        return SubDec(name, sub_children)
+
+    def parseFuncDec():
+        
+        if Parser.tokens.actual.type != 'FUNCTION':
+            raise Exception("Cade o FUNCTION amigao? Line: {0}".format(str(Parser.line)))
+        Parser.tokens.selectNext()
+
+        if Parser.tokens.actual.type != 'ID':
+            raise Exception("Cade o ID amigao? Line: {0}".format(str(Parser.line)))
+        name = Parser.tokens.actual.value
+        Parser.tokens.selectNext()
+
+        func_children = []
+
+        if Parser.tokens.actual.type != 'OPEN_PAR':
+            raise Exception("Cade o '(' amigao? Line: {0}".format(str(Parser.line)))
+        Parser.tokens.selectNext()
+
+        first = True
+        while Parser.tokens.actual.type != 'CLOSE_PAR':
+            if first == False:
+                if Parser.tokens.actual.type != 'COMMA':
+                    raise Exception("Tava esperando uma vírgula aqui. Line: "+str(Parser.line))
+                Parser.tokens.selectNext()
+            if Parser.tokens.actual.type != 'ID':
+                raise Exception("Tava esperando um ID aqui. Line: "+str(Parser.line))
+            id = Id(Parser.tokens.actual.value, [])
+            Parser.tokens.selectNext()
+            
+            if Parser.tokens.actual.type != 'AS':
+                raise Exception("Cade o AS amigao? Line: "+str(Parser.line))
+            Parser.tokens.selectNext()
+
+            func_children.append(VarDec("vardec", [id, Parser.parseType()]))
+
+            first = False
+
+        if Parser.tokens.actual.type != 'CLOSE_PAR':
+            raise Exception("Cade o ')' amigao? Line: {0}".format(str(Parser.line)))
+        Parser.tokens.selectNext()
+
+        if Parser.tokens.actual.type != 'AS':
+            raise Exception("Cade o AS amigao? Line: {0}".format(str(Parser.line)))
+        Parser.tokens.selectNext()
+
+        func_children.insert(0, Parser.parseType())
+
+        if Parser.tokens.actual.type != 'BREAK':
+            raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))
+        Parser.line += 1
+        Parser.tokens.selectNext()
+
+        children = []
+
+        while Parser.tokens.actual.type != 'END':
+            children.append(Parser.parseStatement())
+            Parser.line +=1
+            Parser.tokens.selectNext()
+
+        if Parser.tokens.actual.type != 'END':
+            raise Exception("Cade o END amigao? Line: "+str(Parser.line))
+        Parser.tokens.selectNext()
+
+        if Parser.tokens.actual.type != 'FUNCTION':
+            raise Exception("Cade o FUNCTION amigao? Line: {0}".format(str(Parser.line)))
+        Parser.tokens.selectNext()
+        
+        stmts = Program("statements", children)
+
+        func_children.append(stmts)
+
+        return FuncDec(name, func_children)
+    
 
     def parseStatement():
 
@@ -142,13 +257,46 @@ class Parser:
             Parser.tokens.selectNext()
 
             return VarDec("vardec", [id, Parser.parseType()])
+
+        if Parser.tokens.actual.type == 'CALL':
+            Parser.tokens.selectNext()
+
+            if Parser.tokens.actual.type != 'ID':
+                raise Exception("Cade o ID amigao? Line: {0}".format(str(Parser.line)))
+            name = Parser.tokens.actual.value
+            Parser.tokens.selectNext()
+
+            children = []
+
+            if Parser.tokens.actual.type != 'OPEN_PAR':
+                raise Exception("Cade o '(' amigao? Line: {0}".format(str(Parser.line)))
+            Parser.tokens.selectNext()
+
+            first = True
+            while Parser.tokens.actual.type != 'CLOSE_PAR':
+                if first == False:
+                    if Parser.tokens.actual.type != 'COMMA':
+                        raise Exception("Tava esperando uma vírgula aqui. Line: "+str(Parser.line))
+                    Parser.tokens.selectNext()
+
+                children.append(Parser.parseRelExpression())
+
+                first = False
+
+            if Parser.tokens.actual.type != 'CLOSE_PAR':
+                raise Exception("Cade o ')' amigao? Line: {0}".format(str(Parser.line)))
+            Parser.tokens.selectNext()
+
+            return Call(name, children)
         
         return NoOp('', [])
 
     def parseType():
         if Parser.tokens.actual.type == "INTEGER":
+            Parser.tokens.selectNext()
             return Type('INTEGER', [])
         if Parser.tokens.actual.type == "BOOLEAN":
+            Parser.tokens.selectNext()
             return Type('BOOLEAN', [])
         raise Exception(f"Type {Parser.tokens.actual.type} not reconhecated. Line: {Parser.line}")
         
@@ -222,9 +370,35 @@ class Parser:
             return result
 
         if actual.type == 'ID':
-            result = Id(actual.value, [])
+            name = actual.value
             actual = Parser.tokens.selectNext()
-            return result
+            if actual.type != "OPEN_PAR":
+                result = Id(name, [])
+                return result
+
+            if Parser.tokens.actual.type != 'OPEN_PAR':
+                raise Exception("Cade o '(' amigao? Line: {0}".format(str(Parser.line)))
+            Parser.tokens.selectNext()
+
+            children = []
+
+            first = True
+            while Parser.tokens.actual.type != 'CLOSE_PAR':
+                if first == False:
+                    if Parser.tokens.actual.type != 'COMMA':
+                        raise Exception("Tava esperando uma vírgula aqui. Line: "+str(Parser.line))
+                    Parser.tokens.selectNext()
+
+                children.append(Parser.parseRelExpression())
+
+                first = False
+
+            if Parser.tokens.actual.type != 'CLOSE_PAR':
+                raise Exception("Cade o ')' amigao? Line: {0}".format(str(Parser.line)))
+            Parser.tokens.selectNext()
+
+            return Call(name, children)
+
 
         if actual.type == 'PLUS':
             actual = Parser.tokens.selectNext()
@@ -270,11 +444,6 @@ class Parser:
         Parser.tokens = Tokenizer(PrePro.filter(code))
         Parser.line = 0
         Parser.tokens.selectNext()
-
-        # while Parser.tokens.actual.type != "EOF":
-        #     print(Parser.tokens.actual)
-        #     Parser.tokens.selectNext()
-        # return
 
         while Parser.tokens.actual.type == "BREAK":
             Parser.tokens.selectNext()
