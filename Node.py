@@ -37,6 +37,8 @@ class BinOp(Node):
                 return [x[0] and y[0], "BOOLEAN"]
             if self.value == 'or':
                 return [x[0] or y[0], "BOOLEAN"]
+            if self.value == '=':
+                return [x[0] == y[0], "BOOLEAN"]
 
         raise Exception(f"What the fuck are you trying to do mate? {x.value} {self.value} {y.value}??")
 
