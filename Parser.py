@@ -34,9 +34,6 @@ class Parser:
             Parser.tokens.selectNext()
             child0 = Parser.parseRelExpression()
 
-            if Parser.tokens.actual.type != 'THEN':
-                raise Exception("Cade o THEN amigao? Line: "+str(Parser.line))
-            Parser.tokens.selectNext()
 
             if Parser.tokens.actual.type != 'BREAK':
                 raise Exception("Faltou quebrar a linha. Line: "+str(Parser.line))

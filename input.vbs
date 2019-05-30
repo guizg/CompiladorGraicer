@@ -1,15 +1,16 @@
-x=0
-while x<3 then
-print x
-x=x+1
-wend
-print x+3
+a = 10
+b = 20
+c = input
 
-y = input
+if a < b then
+    if b < c then
+        ' test comment
 
-if y=4 then
-print 0
-else
-print 1
+        while c > 0
+            ' hello
+
+            print c
+            c = c-5
+        wend
+    end if
 end if
-
