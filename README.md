@@ -5,13 +5,18 @@ Diagrama Sintático atual:
 
 ![diagrama](https://github.com/guizg/CompiladorGraicer/blob/master/diagramaSintatico.jpeg)
 
-comandos = “Begin”, “\n”, comando, “\n”, { comando, “\n” }, “End” ;
-comando = atribuição | print | comandos ;
-atribuição = identificador, “=”, expressão ;
-expressão = termo, { (“+” | “-”), termo } ;
-termo = fator, { (“*” | “/”), fator } ;
-fator = (“+” | “-”), fator | número | “(”, expressão, “)” | identificador ;
-identificador = letra, { letra | digito | “_” } ;
-número = dígito, { dígito } ;
-letra = ( a | ... | z | A | ... | Z ) ;
-dígito = ( 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 ) ;
+Program = SubDec|FuncDec
+
+SubDec = “sub”, “identifier”, “(“, { | (“identifier”, “as”, Type)}, “)”, “\n”, { | ( Statement, “\n”)}, “end”, “sub”;
+
+FuncDec = “function”, “identifier”, “(“, { | (“identifier”, “as”, Type)}, “)”, “as”, Type, “\n”, { | ( Statement, “\n”)}, “end”, “function”;
+
+RelExpression = Expression, {“=” | ”>” | ”<”}, Expression;
+
+Expression = Term, {(“+” |  “-” | ”or”),Term | ;
+
+Term = Factor, {(“*” | ”/” | ”and”), Factor} | ;
+
+Factor = “number” | {“boolean” | (”identifier”,{| {“(“{(| RelExpression, {| “,”})}}}) | {(“+” | ”-” | ”not”), Factor} | “(“, RelExpression, “)” | ”input”;
+
+Statement = | (“identifier”, “=”, RelExpression) | (“print”, RelExpression) | (“dim”, “identifier”, “as”, Type) | (“if”, RelExpression, “then”, “\n”, {| (Statement, “\n”), {| (“else”, “\n”, {| (Statement, “\n”)}}, “end”, “if”) | (“call”, “identifier”, “(“, {| {RelExpression, {| “,”}});
