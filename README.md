@@ -3,7 +3,7 @@ Repositório para o compilador da matéria Lógica da Computação
 
 Diagrama Sintático atual:
 
-![diagrama](https://github.com/guizg/CompiladorGraicer/blob/master/ds.jpg)
+![diagrama](https://github.com/guizg/CompiladorGraicer/blob/h9/ds.jpg)
 
 Program = SubDec|FuncDec
 
